@@ -8,7 +8,7 @@ function main(){
 
 class Blunder{
 
-    loadResources() {
+    async loadResources() {
 
     }
 
@@ -18,5 +18,11 @@ class Blunder{
 
     renderingLoop() {
 
+    }
+}
+
+class Utility{
+    static loadTextResourceFromFile(url){
+        return fetch(url).then(res => res.text());
     }
 }
