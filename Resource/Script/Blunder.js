@@ -9,7 +9,7 @@ function main(){
 class Blunder{
 
     async loadResources() {
-
+        let manifest = Utility.loadJSONResource("./Resource/manifest.json");
     }
 
     initializeResources() {
@@ -27,6 +27,6 @@ class Utility{
     }
 
     static loadJSONResource(url){
-        return JSON.parse(this.loadTextResourceFromFile(url));
+        return this.loadTextResourceFromFile(url).then(file => JSON.parse(file));
     }
 }
