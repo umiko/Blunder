@@ -12,8 +12,7 @@ class Blunder{
         let manifest = await Utility.loadJSONResource("./Resource/manifest.json")
             .then(result => result.objects);
         console.log(manifest);
-        //durch properties gehen, ist kein array
-        manifest.map(object.proper => RenderResourceManager.getInstance().loadObjectResources(object))
+        await RenderResourceManager.getInstance().loadManifestContents(manifest);
     }
 
     initializeResources() {
@@ -40,12 +39,43 @@ class RenderResourceManager{
     constructor(){
         this.textures = [];
         this.shaders = [];
+        this.shaderCodeObjects = [];
         this.meshes = [];
     }
 
-    loadObjectResources(object){
-        console.log(object);
+    async loadManifestContents(manifest){
+        for(let property in manifest){
+            if(manifest.hasOwnProperty(property)){
+                await this.loadObjectResources(manifest[property]);
+            }
+        }
     }
+
+    async loadObjectResources(object){
+        if(object.hasOwnProperty("data")) {
+            let data = object["data"];
+            console.info("Loading "+object["name"]+"...");
+            this.loadShaders(data);
+        }
+    }
+
+    async loadShaders(objectData) {
+        if(objectData.hasOwnProperty("shader")){
+
+            for(let property in objectData["shader"]){
+
+            }
+        }
+        else{
+            this.loadGenericShaders();
+        }
+    }
+
+    loadGenericShaders() {
+        let genericVert = Utility.loadTextResourceFromFile("./Resource/Shader/genericShader.vert");
+        let genericFrag = Utility.loadTextResourceFromFile("./Resource/Shader/genericShader.frag");
+    }
+
 
     insertTexture(texture){
         if(this.textures.includes(texture)){
@@ -92,6 +122,9 @@ class RenderResourceManager{
         }
         else{
             this.instance = new RenderResourceManager();
+            return this.instance;
         }
     }
+
+
 }

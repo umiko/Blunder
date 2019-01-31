@@ -6,10 +6,10 @@
         "model": "./Resource/Model/stanford_dragon.json",
         "texture": null,
         "color": null,
-        "shader": {
+        "shader": [{
           "vertex": "./Resource/Shader/shader.vert",
           "fragment": "./Resource/Shader/shader.frag"
-        }
+        }]
       }
     },
     "suzanne": {
