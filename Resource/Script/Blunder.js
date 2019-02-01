@@ -10,7 +10,7 @@ class Blunder{
 
     async loadResources() {
         let manifest = await Utility.loadJSONResource("./Resource/manifest.json")
-            .then(result => result.objects);
+            .then(result => result['objects']);
         console.log(manifest);
         await RenderResourceManager.getInstance().loadManifestContents(manifest);
     }
