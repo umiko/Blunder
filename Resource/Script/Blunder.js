@@ -24,16 +24,6 @@ class Blunder{
     }
 }
 
-class Utility{
-    static loadTextResourceFromFile(url){
-        return fetch(url).then(res => res.text());
-    }
-
-    static loadJSONResource(url){
-        return this.loadTextResourceFromFile(url).then(file => JSON.parse(file));
-    }
-}
-
 class RenderResourceManager{
 
     constructor(){
@@ -61,19 +51,19 @@ class RenderResourceManager{
 
     async loadShaders(objectData) {
         if(objectData.hasOwnProperty("shader")){
-
             for(let property in objectData["shader"]){
 
             }
         }
         else{
-            this.loadGenericShaders();
+            this.loadGenericShaders().then(result => this.shaderCodeObjects.push(result));
         }
     }
 
-    loadGenericShaders() {
+    async loadGenericShaders() {
         let genericVert = Utility.loadTextResourceFromFile("./Resource/Shader/genericShader.vert");
         let genericFrag = Utility.loadTextResourceFromFile("./Resource/Shader/genericShader.frag");
+        return {genericVert, genericFrag};
     }
 
 
@@ -121,6 +111,14 @@ class RenderResourceManager{
             this.instance = new RenderResourceManager();
         return this.instance;
     }
+}
 
+class Utility{
+    static loadTextResourceFromFile(url){
+        return fetch(url).then(res => res.text());
+    }
 
+    static loadJSONResource(url){
+        return this.loadTextResourceFromFile(url).then(file => JSON.parse(file));
+    }
 }
