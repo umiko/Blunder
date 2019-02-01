@@ -117,13 +117,9 @@ class RenderResourceManager{
     }
 
     static getInstance() {
-        if(this.instance){
-            return this.instance;
-        }
-        else{
+        if(!this.instance)
             this.instance = new RenderResourceManager();
-            return this.instance;
-        }
+        return this.instance;
     }
 
 
