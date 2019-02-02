@@ -51,21 +51,26 @@ class RenderResourceManager{
 
     async loadShaders(objectData) {
         if(objectData.hasOwnProperty("shader")){
-            for(let property in objectData["shader"]){
-
-            }
+            this.loadSpecificShaders(objectData["shader"]);
         }
         else{
             this.loadGenericShaders().then(result => this.shaderCodeObjects.push(result));
         }
     }
 
-    async loadGenericShaders() {
-        let genericVert = Utility.loadTextResourceFromFile("./Resource/Shader/genericShader.vert");
-        let genericFrag = Utility.loadTextResourceFromFile("./Resource/Shader/genericShader.frag");
-        return {genericVert, genericFrag};
+    async loadSpecificShaders(shaderPaths){
+        let vertexShader = Utility.loadTextResourceFromFile(shaderPaths['vertex']);
+        let fragmentShader = Utility.loadTextResourceFromFile(shaderPaths['fragment']);
+        return {vertexShader,fragmentShader};
     }
 
+    async loadGenericShaders() {
+        let genericShaders = {
+            "vertex": "./Resource/Shader/genericShader.vert",
+            "fragment": "./Resource/Shader/genericShader.frag"
+        };
+        return this.loadSpecificShaders(genericShaders);
+    }
 
     insertTexture(texture){
         if(this.textures.includes(texture)){
@@ -111,6 +116,10 @@ class RenderResourceManager{
             this.instance = new RenderResourceManager();
         return this.instance;
     }
+}
+
+class DrawableObject {
+
 }
 
 class Utility{
