@@ -29,8 +29,7 @@ class RenderResourceManager{
     constructor(){
         this.textures = [];
         this.shaders = [];
-        this.meshes = [];
-        this.normals = [];
+        this.vertexData = [];
     }
 
     async loadManifestContents(manifest){
@@ -76,12 +75,12 @@ class RenderResourceManager{
         return this.shaders[shaderIndex];
     }
 
-    insertVertArray(mesh){
-        if(this.meshes.includes(mesh)){
-            return this.meshes.indexOf(mesh);
+    insertVertexData(dataArray){
+        if(this.vertexData.includes(dataArray)){
+            return this.vertexData.indexOf(dataArray);
         }
         else{
-            return this.meshes.push(mesh)-1;
+            return this.vertexData.push(dataArray)-1;
         }
     }
 
@@ -102,8 +101,10 @@ class LoadingInterfaceObject {
     constructor(name){
         this.objectName = name;
 
-        this.meshIndex = null;
+        this.vertexIndex = null;
         this.normalIndex = null;
+        this.indexIndex = null;
+        this.textureCoordinateIndex = null;
 
         this.textureIndex = null;
         this.specularIndex = null;
@@ -124,14 +125,44 @@ class LoadingInterfaceObject {
     loadMeshData(data) {
         let modelData = Utility.loadJSONResource(data['model']);
         if(modelData.hasOwnProperty('meshes')) {
-            this.extractVertexData(modelData['meshes']).then(result => this.meshIndex = result);
+            this.extractVertexData(modelData['meshes']).then(result => this.vertexIndex = result);
+            this.extractNormalData(modelData['meshes']).then(result => this.normalIndex=result);
+            this.extractIndexData(modelData['meshes']).then(result => this.indexIndex = result);
+        }
+    }
+
+    async extractModelData(modelData){
+        const modelDataTypes = ['vertices', 'normals', 'faces', 'texturecoordinates'];
+        for(let datatype in modelDataTypes){
+            //todo: write function to extract data by type, taking care of the faces edge case
         }
     }
 
     async extractVertexData(modelData){
         if(modelData[0].hasOwnProperty('vertices')) {
             let meshData = modelData['meshes'][0]['vertices'];
-            return RenderResourceManager.getInstance().insertVertArray(meshData);
+            return RenderResourceManager.getInstance().insertVertexData(meshData);
+        }
+    }
+
+    async extractNormalData(modelData) {
+        if(modelData[0].hasOwnProperty('normals')) {
+            let meshData = modelData['meshes'][0]['normals'];
+            return RenderResourceManager.getInstance().insertVertexData(meshData);
+        }
+    }
+
+    async extractIndexData(modelData){
+        if(modelData[0].hasOwnProperty('faces')){
+            let meshData = [].concat.apply([], modelData['meshes'][0]['faces']);
+            return RenderResourceManager.getInstance().insertVertexData(meshData);
+        }
+    }
+
+    async extractTextureCoordinateData(modelData){
+        if(modelData[0].hasOwnProperty('texturecoordinates')){
+            let meshData = modelData['meshes'][0]['texturecoordinates'][0];
+            return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
     }
 
