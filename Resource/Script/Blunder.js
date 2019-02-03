@@ -29,8 +29,8 @@ class RenderResourceManager{
     constructor(){
         this.textures = [];
         this.shaders = [];
-        this.shaderCodeObjects = [];
         this.meshes = [];
+        this.normals = [];
     }
 
     async loadManifestContents(manifest){
@@ -43,33 +43,11 @@ class RenderResourceManager{
 
     async loadObjectResources(object){
         if(object.hasOwnProperty("data")) {
+            let lio = new LoadingInterfaceObject(object['name']);
             let data = object["data"];
             console.info("Loading "+object["name"]+"...");
-            this.loadShaders(data);
+            this.loadObjectDataToInterfaceObject(data, lio);
         }
-    }
-
-    async loadShaders(objectData) {
-        if(objectData.hasOwnProperty("shader")){
-            this.loadSpecificShaders(objectData["shader"]);
-        }
-        else{
-            this.loadGenericShaders().then(result => this.shaderCodeObjects.push(result));
-        }
-    }
-
-    async loadSpecificShaders(shaderPaths){
-        let vertexShader = Utility.loadTextResourceFromFile(shaderPaths['vertex']);
-        let fragmentShader = Utility.loadTextResourceFromFile(shaderPaths['fragment']);
-        return {vertexShader,fragmentShader};
-    }
-
-    async loadGenericShaders() {
-        let genericShaders = {
-            "vertex": "./Resource/Shader/genericShader.vert",
-            "fragment": "./Resource/Shader/genericShader.frag"
-        };
-        return this.loadSpecificShaders(genericShaders);
     }
 
     insertTexture(texture){
@@ -98,7 +76,7 @@ class RenderResourceManager{
         return this.shaders[shaderIndex];
     }
 
-    insertMesh(mesh){
+    insertVertArray(mesh){
         if(this.meshes.includes(mesh)){
             return this.meshes.indexOf(mesh);
         }
@@ -116,10 +94,69 @@ class RenderResourceManager{
             this.instance = new RenderResourceManager();
         return this.instance;
     }
+
+
 }
 
-class DrawableObject {
+class LoadingInterfaceObject {
+    constructor(name){
+        this.objectName = name;
 
+        this.meshIndex = null;
+        this.normalIndex = null;
+
+        this.textureIndex = null;
+        this.specularIndex = null;
+        this.normalMapIndex = null;
+        this.glossIndex = null;
+
+        this.colorIndex = null;
+
+        this.position = [0.0,0.0,0.0];
+
+        this.shaderCodeObject = null;
+    }
+
+    loadInterfaceObjectData(data){
+        this.loadMeshData(data);
+    }
+
+    loadMeshData(data) {
+        let modelData = Utility.loadJSONResource(data['model']);
+        if(modelData.hasOwnProperty('meshes')) {
+            this.extractVertexData(modelData['meshes']).then(result => this.meshIndex = result);
+        }
+    }
+
+    async extractVertexData(modelData){
+        if(modelData[0].hasOwnProperty('vertices')) {
+            let meshData = modelData['meshes'][0]['vertices'];
+            return RenderResourceManager.getInstance().insertVertArray(meshData);
+        }
+    }
+
+    async loadShaderCodeObjects(objectData) {
+        if(objectData.hasOwnProperty("shader")){
+            this.loadSpecificShaders(objectData["shader"]).then(result => this.shaderCodeObject=result);
+        }
+        else{
+            this.loadGenericShaders().then(result => this.shaderCodeObject=result);
+        }
+    }
+
+    async loadSpecificShaders(shaderPaths){
+        let vertexShader = Utility.loadTextResourceFromFile(shaderPaths['vertex']);
+        let fragmentShader = Utility.loadTextResourceFromFile(shaderPaths['fragment']);
+        return {vertexShader,fragmentShader};
+    }
+
+    async loadGenericShaders() {
+        let genericShaders = {
+            "vertex": "./Resource/Shader/genericShader.vert",
+            "fragment": "./Resource/Shader/genericShader.frag"
+        };
+        return this.loadSpecificShaders(genericShaders);
+    }
 }
 
 class Utility{
