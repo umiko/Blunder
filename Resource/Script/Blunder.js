@@ -122,19 +122,13 @@ class LoadingInterfaceObject {
         this.loadMeshData(data);
     }
 
-    loadMeshData(data) {
-        let modelData = Utility.loadJSONResource(data['model']);
+    loadMeshData(manifestObject) {
+        let modelData = Utility.loadJSONResource(manifestObject['model']);
         if(modelData.hasOwnProperty('meshes')) {
             this.extractVertexData(modelData['meshes']).then(result => this.vertexIndex = result);
-            this.extractNormalData(modelData['meshes']).then(result => this.normalIndex=result);
+            this.extractNormalData(modelData['meshes']).then(result => this.normalIndex = result);
             this.extractIndexData(modelData['meshes']).then(result => this.indexIndex = result);
-        }
-    }
-
-    async extractModelData(modelData){
-        const modelDataTypes = ['vertices', 'normals', 'faces', 'texturecoordinates'];
-        for(let datatype in modelDataTypes){
-            //todo: write function to extract data by type, taking care of the faces edge case
+            this.extractTextureCoordinateData(modelData['meshes']).then(result => this.textureCoordinateIndex = result);
         }
     }
 
@@ -143,6 +137,8 @@ class LoadingInterfaceObject {
             let meshData = modelData['meshes'][0]['vertices'];
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
+        else
+            return -1;
     }
 
     async extractNormalData(modelData) {
@@ -150,6 +146,8 @@ class LoadingInterfaceObject {
             let meshData = modelData['meshes'][0]['normals'];
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
+        else
+            return -1;
     }
 
     async extractIndexData(modelData){
@@ -157,6 +155,8 @@ class LoadingInterfaceObject {
             let meshData = [].concat.apply([], modelData['meshes'][0]['faces']);
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
+        else
+            return -1;
     }
 
     async extractTextureCoordinateData(modelData){
@@ -164,6 +164,8 @@ class LoadingInterfaceObject {
             let meshData = modelData['meshes'][0]['texturecoordinates'][0];
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
+        else
+            return -1;
     }
 
     async loadShaderCodeObjects(objectData) {
