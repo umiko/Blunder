@@ -4,7 +4,6 @@
       "name": "stanford_dragon",
       "data": {
         "model": "./Resource/Model/stanford_dragon.json",
-        "texture": null,
         "color": null,
         "shader": {
           "vertex": "./Resource/Shader/shader.vert",
@@ -15,18 +14,22 @@
     "suzanne": {
       "name": "suzanne",
       "data": {
-        "model": "./Resource/Model.suzanne.json",
-        "texture": "./Resource/Texture/suzanne.png"
+        "model": "./Resource/Model/suzanne.json",
+        "textureMaps": {
+          "diffuse": "./Resource/Texture/suzanne.png"
+        }
       }
     },
     "floppy": {
       "name": "floppy",
       "data": {
         "model": "./Resource/Model/floppy.json",
-        "texture": "./Resource/Texture/floppy_diffuse.png",
-        "normal": "./Resource/Texture/floppy_normal.png",
-        "specular": "./Resource/Texture/floppy_specular.png",
-        "gloss": "./Resource/Texture/floppy_gloss.png"
+        "textureMaps": {
+          "diffuse": "./Resource/Texture/floppy_diffuse.png",
+          "normal": "./Resource/Texture/floppy_normal.png",
+          "specular": "./Resource/Texture/floppy_specular.png",
+          "gloss": "./Resource/Texture/floppy_gloss.png"
+        }
       }
     }
   }

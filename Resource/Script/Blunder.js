@@ -35,7 +35,7 @@ class RenderResourceManager{
     async loadManifestContents(manifest){
         for(let property in manifest){
             if(manifest.hasOwnProperty(property)){
-                await this.loadObjectResources(manifest[property]);
+                this.loadObjectResources(manifest[property]);
             }
         }
     }
@@ -45,7 +45,7 @@ class RenderResourceManager{
             let lio = new LoadingInterfaceObject(object['name']);
             let data = object["data"];
             console.info("Loading "+object["name"]+"...");
-            this.loadObjectDataToInterfaceObject(data, lio);
+            lio.loadInterfaceObjectData(data);
         }
     }
 
@@ -98,6 +98,7 @@ class RenderResourceManager{
 }
 
 class LoadingInterfaceObject {
+
     constructor(name){
         this.objectName = name;
 
@@ -106,10 +107,7 @@ class LoadingInterfaceObject {
         this.indexIndex = null;
         this.textureCoordinateIndex = null;
 
-        this.textureIndex = null;
-        this.specularIndex = null;
-        this.normalMapIndex = null;
-        this.glossIndex = null;
+        this.textureIndexObject = null;
 
         this.colorIndex = null;
 
@@ -119,22 +117,28 @@ class LoadingInterfaceObject {
     }
 
     loadInterfaceObjectData(data){
-        this.loadMeshData(data);
+        this.loadMeshData(data['model']);
+        if(data.hasOwnProperty('textureMaps'))
+            this.loadTextures(data['textureMaps']);
+        console.log(this);
     }
 
-    loadMeshData(manifestObject) {
-        let modelData = Utility.loadJSONResource(manifestObject['model']);
-        if(modelData.hasOwnProperty('meshes')) {
-            this.extractVertexData(modelData['meshes']).then(result => this.vertexIndex = result);
-            this.extractNormalData(modelData['meshes']).then(result => this.normalIndex = result);
-            this.extractIndexData(modelData['meshes']).then(result => this.indexIndex = result);
-            this.extractTextureCoordinateData(modelData['meshes']).then(result => this.textureCoordinateIndex = result);
-        }
+    //<editor-fold desc="model data loading">
+
+    async loadMeshData(modelPath) {
+        Utility.loadJSONResource(modelPath).then(modelData => {
+            if(modelData.hasOwnProperty('meshes')) {
+                this.extractVertexData(modelData['meshes'][0]).then(result => this.vertexIndex = result);
+                this.extractNormalData(modelData['meshes'][0]).then(result => this.normalIndex = result);
+                this.extractIndexData(modelData['meshes'][0]).then(result => this.indexIndex = result);
+                this.extractTextureCoordinateData(modelData['meshes'][0]).then(result => this.textureCoordinateIndex = result);
+            }
+        });
     }
 
     async extractVertexData(modelData){
-        if(modelData[0].hasOwnProperty('vertices')) {
-            let meshData = modelData['meshes'][0]['vertices'];
+        if(modelData.hasOwnProperty('vertices')) {
+            let meshData = modelData['vertices'];
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
         else
@@ -142,8 +146,8 @@ class LoadingInterfaceObject {
     }
 
     async extractNormalData(modelData) {
-        if(modelData[0].hasOwnProperty('normals')) {
-            let meshData = modelData['meshes'][0]['normals'];
+        if(modelData.hasOwnProperty('normals')) {
+            let meshData = modelData['normals'];
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
         else
@@ -151,8 +155,8 @@ class LoadingInterfaceObject {
     }
 
     async extractIndexData(modelData){
-        if(modelData[0].hasOwnProperty('faces')){
-            let meshData = [].concat.apply([], modelData['meshes'][0]['faces']);
+        if(modelData.hasOwnProperty('faces')){
+            let meshData = [].concat.apply([], modelData['faces']);
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
         else
@@ -160,12 +164,30 @@ class LoadingInterfaceObject {
     }
 
     async extractTextureCoordinateData(modelData){
-        if(modelData[0].hasOwnProperty('texturecoordinates')){
-            let meshData = modelData['meshes'][0]['texturecoordinates'][0];
+        if(modelData.hasOwnProperty('texturecoords')){
+            let meshData = modelData['texturecoords'][0];
             return RenderResourceManager.getInstance().insertVertexData(meshData);
         }
         else
             return -1;
+    }
+
+    //</editor-fold>
+
+    async loadTextures(textureMaps){
+        let textureMapTypeArray = ['diffuse', 'normal', 'specular', 'gloss'];
+        let tio = {};
+        for (let textureMapType of textureMapTypeArray){
+            if(textureMaps.hasOwnProperty(textureMapType))
+                this.loadTextureMap(textureMaps[textureMapType]).then(result => tio[textureMapType+'MapIndex']=result);
+        }
+        this.textureIndexObject = tio;
+    }
+
+    async loadTextureMap(texturePath){
+        console.log(texturePath);
+        let texture = await Utility.loadImage(texturePath);
+        return RenderResourceManager.getInstance().insertTexture(texture);
     }
 
     async loadShaderCodeObjects(objectData) {
@@ -200,4 +222,18 @@ class Utility{
     static loadJSONResource(url){
         return this.loadTextResourceFromFile(url).then(file => JSON.parse(file));
     }
+
+    static async loadImage(textureMapPath){
+        return new Promise(resolve => {
+            this.loadImageWithCallback(textureMapPath, resolve);
+        });
+    }
+
+    static loadImageWithCallback(url, callback) {
+        let image = new Image();
+        image.onload = function () {
+            callback(image);
+        };
+        image.src = url;
+    };
 }
