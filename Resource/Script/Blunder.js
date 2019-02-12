@@ -1,6 +1,6 @@
 function main(){
     let blunder = new Blunder();
-    blunder.loadResources().then(()=>{
+    RenderResourceManager.getInstance().loadResources().then(()=>{
         blunder.initializeResources();
         blunder.renderingLoop();
     });
@@ -10,11 +10,8 @@ var textureMapTypeArray = ['diffuse', 'normal', 'specular', 'gloss'];
 
 class Blunder{
 
-    async loadResources() {
-        let manifest = await Utility.loadJSONResource("./Resource/manifest.json")
-            .then(result => result['objects']);
-        console.log(manifest);
-        await RenderResourceManager.getInstance().loadManifestContents(manifest).then(result => {console.log(result)});
+    constructor(){
+
     }
 
     initializeResources() {
@@ -24,6 +21,12 @@ class Blunder{
     renderingLoop() {
 
     }
+
+    static getInstance() {
+        if (!this.instance)
+            this.instance = new this();
+        return this.instance;
+    }
 }
 
 class RenderResourceManager{
@@ -32,6 +35,13 @@ class RenderResourceManager{
         this.textureMaps = [];
         this.shaders = [];
         this.vertexData = [];
+    }
+
+    async loadResources() {
+        let manifest = await Utility.loadJSONResource("./Resource/manifest.json")
+            .then(result => result['objects']);
+        console.log(manifest);
+        return await RenderResourceManager.getInstance().loadManifestContents(manifest);
     }
 
     async loadManifestContents(manifest){
@@ -93,8 +103,8 @@ class RenderResourceManager{
     }
 
     static getInstance() {
-        if(!this.instance)
-            this.instance = new RenderResourceManager();
+        if (!this.instance)
+            this.instance = new this();
         return this.instance;
     }
 }
@@ -117,6 +127,8 @@ class LoadingInterfaceObject {
 
         this.shaderCodeObject = null;
     }
+
+    //<editor-fold desc="all the loading code">
 
     async loadInterfaceObjectData(data){
         this.loadMeshData(data['model']);
@@ -217,6 +229,70 @@ class LoadingInterfaceObject {
             "fragment": "./Resource/Shader/genericShader.frag"
         };
         return await this.loadSpecificShaders(genericShaders);
+    }
+
+    //</editor-fold>
+
+    initializeResources(){
+        //todo: compile shaders, initialize buffers
+    }
+
+    getVertexShaderCode(){
+        if(this.shaderCodeObject!=null && this.shaderCodeObject.hasOwnProperty("vertex"))
+            return this.shaderCodeObject.vertex;
+        throw new Error("LoadingInterfaceObject has no vertex shader code");
+    }
+
+    getFragmentShaderCode(){
+        if(this.shaderCodeObject!=null && this.shaderCodeObject.hasOwnProperty("fragment"))
+            return this.shaderCodeObject.fragment;
+        throw new Error("LoadingInterfaceObject has no fragment shader code");
+    }
+}
+
+class ShaderHelper{
+
+    static createShaderProgram(context, vertexCode, fragmentCode){
+        let vertexShader = ShaderHelper.compileShader(context, vertexCode, context.VERTEX_SHADER);
+        let fragmentShader = ShaderHelper.compileShader(context, fragmentCode, context.FRAGMENT_SHADER);
+        let shaderProgram = ShaderHelper.linkShaderProgram(context, vertexShader, fragmentShader);
+        ShaderHelper.validateShaderProgram(shaderProgram);
+        return shaderProgram;
+    }
+
+    static compileShader(context, shaderCode, shaderType){
+        let compiledShader = context.createShader(shaderType);
+        context.shaderSource(compiledShader, shaderCode);
+        ShaderHelper.compileShader(compiledShader);
+        ShaderHelper.checkShaderCompilationStatus(compiledShader);
+        return compiledShader;
+    }
+
+    static linkShaderProgram(context, vertexShader, fragmentShader){
+        let shaderProgram = context.createProgram();
+        context.attachShader(shaderProgram, vertexShader);
+        context.attachShader(shaderProgram, fragmentShader);
+        context.linkProgram(shaderProgram);
+        ShaderHelper.checkProgramLinkStatus(shaderProgram);
+        return shaderProgram;
+    }
+
+    static checkShaderCompilationStatus(context, compiledShader){
+        if(!context.getShaderParameter(compiledShader, context.COMPILE_STATUS)){
+            throw new Error("Error in Shader Compilation!\n"+ context.getShaderInfoLog(compiledShader));
+        }
+    }
+
+    static checkProgramLinkStatus(context, shaderProgram) {
+        if(!context.getProgramParameter(shaderProgram, context.LINK_STATUS)){
+            throw new Error("Error linking program!\n" + context.getProgramInfoLog(shaderProgram));
+        }
+    }
+
+    static validateShaderProgram(context, shaderProgram){
+        if(!context.getProgramParameter(shaderProgram, context.VALIDATE_STATUS)){
+            throw new Error("Error validating program!\n" + context.getProgramInfoLog(shaderProgram));
+        }
     }
 }
 
