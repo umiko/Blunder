@@ -1,25 +1,46 @@
 function main(){
-    let blunder = new Blunder();
-    RenderResourceManager.getInstance().loadResources().then(()=>{
-        blunder.initializeResources();
-        blunder.renderingLoop();
+    ResourceLoader.loadResources().then(result =>{
+        Blunder.getInstance().initializeResources();
+        Blunder.getInstance().renderingLoop();
     });
 }
 
-var textureMapTypeArray = ['diffuse', 'normal', 'specular', 'gloss'];
+const textureMapTypeArray = ['diffuse', 'normal', 'specular', 'gloss'];
+
 
 class Blunder{
 
     constructor(){
-
+        this.canvas = document.getElementById('viewport');
     }
 
     initializeResources() {
-
+        this.initializeWebGL();
     }
 
     renderingLoop() {
 
+    }
+
+    initializeWebGL(){
+        this.context = Blunder.initializeWebGLContext(this.canvas);
+        this.context.clearColor(.75, .85, .8, 1.0);
+        this.context.clear(this.context.COLOR_BUFFER_BIT | this.context.DEPTH_BUFFER_BIT);
+        this.context.enable(this.context.DEPTH_TEST);
+        this.context.enable(this.context.CULL_FACE);
+    }
+
+    static getWebGLContext(){
+        return this.getInstance().context;
+    }
+
+    static initializeWebGLContext(canvas){
+        let context = canvas.getContext('webgl');
+        if(!context)
+             return canvas.getContext('experimental-webgl');
+        if(!context)
+            throw new Error("Unable to get WebGL context");
+        return context;
     }
 
     static getInstance() {
@@ -29,6 +50,7 @@ class Blunder{
     }
 }
 
+
 class RenderResourceManager{
 
     constructor(){
@@ -37,31 +59,7 @@ class RenderResourceManager{
         this.vertexData = [];
     }
 
-    async loadResources() {
-        let manifest = await Utility.loadJSONResource("./Resource/manifest.json")
-            .then(result => result['objects']);
-        console.log(manifest);
-        return await RenderResourceManager.getInstance().loadManifestContents(manifest);
-    }
-
-    async loadManifestContents(manifest){
-        let loadingInterfaceObjectArray = [];
-        for(let property in manifest){
-            if(manifest.hasOwnProperty(property)){
-                this.loadObjectResources(manifest[property]).then(result => loadingInterfaceObjectArray.push(result));
-            }
-        }
-        return loadingInterfaceObjectArray;
-    }
-
-    async loadObjectResources(object){
-        if(object.hasOwnProperty("data")) {
-            let lio = new LoadingInterfaceObject(object['name']);
-            let data = object["data"];
-            console.info("Loading "+object["name"]+"...");
-            return lio.loadInterfaceObjectData(data);
-        }
-    }
+    //<editor-fold desc="inserts and getter">
 
     insertTextureMap(texture){
         if(this.textureMaps.includes(texture)){
@@ -102,6 +100,8 @@ class RenderResourceManager{
         return this.vertexData[meshIndex];
     }
 
+    //</editor-fold>
+
     static getInstance() {
         if (!this.instance)
             this.instance = new this();
@@ -118,6 +118,7 @@ class LoadingInterfaceObject {
         this.normalIndex = null;
         this.indexIndex = null;
         this.textureCoordinateIndex = null;
+        this.shaderIndex = null;
 
         this.textureIndexObject = null;
 
@@ -235,6 +236,8 @@ class LoadingInterfaceObject {
 
     initializeResources(){
         //todo: compile shaders, initialize buffers
+        let shader = ShaderHelper.createShaderProgram(Blunder.getWebGLContext(), this.getVertexShaderCode(), this.getFragmentShaderCode());
+        this.shaderIndex = RenderResourceManager.getInstance().insertShader(shader);
     }
 
     getVertexShaderCode(){
@@ -292,6 +295,34 @@ class ShaderHelper{
     static validateShaderProgram(context, shaderProgram){
         if(!context.getProgramParameter(shaderProgram, context.VALIDATE_STATUS)){
             throw new Error("Error validating program!\n" + context.getProgramInfoLog(shaderProgram));
+        }
+    }
+}
+
+class ResourceLoader{
+
+    static async loadResources() {
+        let manifest = await Utility.loadJSONResource("./Resource/manifest.json")
+            .then(result => result['objects']);
+        return await ResourceLoader.loadManifestContents(manifest);
+    }
+
+    static async loadManifestContents(manifest){
+        let loadingInterfaceObjectArray = [];
+        for(let property in manifest){
+            if(manifest.hasOwnProperty(property)){
+                ResourceLoader.loadObjectResources(manifest[property]).then(result => loadingInterfaceObjectArray.push(result));
+            }
+        }
+        return loadingInterfaceObjectArray;
+    }
+
+    static async loadObjectResources(object){
+        if(object.hasOwnProperty("data")) {
+            let lio = new LoadingInterfaceObject(object['name']);
+            let data = object["data"];
+            console.info("Loading "+object["name"]+"...");
+            return lio.loadInterfaceObjectData(data);
         }
     }
 }
