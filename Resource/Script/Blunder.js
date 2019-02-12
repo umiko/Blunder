@@ -6,13 +6,15 @@ function main(){
     });
 }
 
+var textureMapTypeArray = ['diffuse', 'normal', 'specular', 'gloss'];
+
 class Blunder{
 
     async loadResources() {
         let manifest = await Utility.loadJSONResource("./Resource/manifest.json")
             .then(result => result['objects']);
         console.log(manifest);
-        await RenderResourceManager.getInstance().loadManifestContents(manifest);
+        await RenderResourceManager.getInstance().loadManifestContents(manifest).then(result => {console.log(result)});
     }
 
     initializeResources() {
@@ -27,17 +29,19 @@ class Blunder{
 class RenderResourceManager{
 
     constructor(){
-        this.textures = [];
+        this.textureMaps = [];
         this.shaders = [];
         this.vertexData = [];
     }
 
     async loadManifestContents(manifest){
+        let loadingInterfaceObjectArray = [];
         for(let property in manifest){
             if(manifest.hasOwnProperty(property)){
-                this.loadObjectResources(manifest[property]);
+                this.loadObjectResources(manifest[property]).then(result => loadingInterfaceObjectArray.push(result));
             }
         }
+        return loadingInterfaceObjectArray;
     }
 
     async loadObjectResources(object){
@@ -45,21 +49,21 @@ class RenderResourceManager{
             let lio = new LoadingInterfaceObject(object['name']);
             let data = object["data"];
             console.info("Loading "+object["name"]+"...");
-            lio.loadInterfaceObjectData(data);
+            return lio.loadInterfaceObjectData(data);
         }
     }
 
-    insertTexture(texture){
-        if(this.textures.includes(texture)){
-            return this.textures.indexOf(texture);
+    insertTextureMap(texture){
+        if(this.textureMaps.includes(texture)){
+            return this.textureMaps.indexOf(texture);
         }
         else{
-            return this.textures.push(texture)-1;
+            return this.textureMaps.push(texture)-1;
         }
     }
 
-    getTexture(textureIndex){
-        return this.textures[textureIndex];
+    getTextureMap(textureIndex){
+        return this.textureMaps[textureIndex];
     }
 
     insertShader(shader){
@@ -84,8 +88,8 @@ class RenderResourceManager{
         }
     }
 
-    getMesh(meshIndex){
-        return this.meshes[meshIndex];
+    getVertexData(meshIndex){
+        return this.vertexData[meshIndex];
     }
 
     static getInstance() {
@@ -93,8 +97,6 @@ class RenderResourceManager{
             this.instance = new RenderResourceManager();
         return this.instance;
     }
-
-
 }
 
 class LoadingInterfaceObject {
@@ -109,18 +111,18 @@ class LoadingInterfaceObject {
 
         this.textureIndexObject = null;
 
-        this.colorIndex = null;
+        this.color = [Math.random(),Math.random(),Math.random()];
 
         this.position = [0.0,0.0,0.0];
 
         this.shaderCodeObject = null;
     }
 
-    loadInterfaceObjectData(data){
+    async loadInterfaceObjectData(data){
         this.loadMeshData(data['model']);
-        if(data.hasOwnProperty('textureMaps'))
-            this.loadTextures(data['textureMaps']);
-        console.log(this);
+        this.loadTextures(data);
+        this.loadShaders(data);
+        return this;
     }
 
     //<editor-fold desc="model data loading">
@@ -174,25 +176,29 @@ class LoadingInterfaceObject {
 
     //</editor-fold>
 
-    async loadTextures(textureMaps){
-        let textureMapTypeArray = ['diffuse', 'normal', 'specular', 'gloss'];
+    async loadTextures(data){
         let tio = {};
-        for (let textureMapType of textureMapTypeArray){
-            if(textureMaps.hasOwnProperty(textureMapType))
-                this.loadTextureMap(textureMaps[textureMapType]).then(result => tio[textureMapType+'MapIndex']=result);
-        }
+        let textureMapPaths = data.hasOwnProperty('textureMaps') ? data['textureMaps'] : {};
+        for (let textureMapType of textureMapTypeArray)
+            if(textureMapPaths.hasOwnProperty(textureMapType))
+                this.loadTextureMap(textureMapPaths[textureMapType]).then(result => tio[textureMapType+'MapIndex']=result);
         this.textureIndexObject = tio;
     }
 
     async loadTextureMap(texturePath){
         console.log(texturePath);
         let texture = await Utility.loadImage(texturePath);
-        return RenderResourceManager.getInstance().insertTexture(texture);
+        return RenderResourceManager.getInstance().insertTextureMap(texture);
     }
 
-    async loadShaderCodeObjects(objectData) {
-        if(objectData.hasOwnProperty("shader")){
-            this.loadSpecificShaders(objectData["shader"]).then(result => this.shaderCodeObject=result);
+    async loadShaders(data){
+        //space for multi shader loading
+        this.loadShaderCodeObjects(data.hasOwnProperty('shaders') ? data['shaders'] : {});
+    }
+
+    async loadShaderCodeObjects(shaderPathObject) {
+        if(shaderPathObject.hasOwnProperty("vertex") && shaderPathObject.hasOwnProperty('fragment')){
+            this.loadSpecificShaders(shaderPathObject).then(result => this.shaderCodeObject=result);
         }
         else{
             this.loadGenericShaders().then(result => this.shaderCodeObject=result);
@@ -200,9 +206,9 @@ class LoadingInterfaceObject {
     }
 
     async loadSpecificShaders(shaderPaths){
-        let vertexShader = Utility.loadTextResourceFromFile(shaderPaths['vertex']);
-        let fragmentShader = Utility.loadTextResourceFromFile(shaderPaths['fragment']);
-        return {vertexShader,fragmentShader};
+        let vertexShader = await Utility.loadTextResourceFromFile(shaderPaths['vertex']);
+        let fragmentShader = await Utility.loadTextResourceFromFile(shaderPaths['fragment']);
+        return {"vertex": vertexShader, "fragment": fragmentShader};
     }
 
     async loadGenericShaders() {
@@ -210,7 +216,7 @@ class LoadingInterfaceObject {
             "vertex": "./Resource/Shader/genericShader.vert",
             "fragment": "./Resource/Shader/genericShader.frag"
         };
-        return this.loadSpecificShaders(genericShaders);
+        return await this.loadSpecificShaders(genericShaders);
     }
 }
 

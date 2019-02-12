@@ -4,8 +4,7 @@
       "name": "stanford_dragon",
       "data": {
         "model": "./Resource/Model/stanford_dragon.json",
-        "color": null,
-        "shader": {
+        "shaders": {
           "vertex": "./Resource/Shader/shader.vert",
           "fragment": "./Resource/Shader/shader.frag"
         }
