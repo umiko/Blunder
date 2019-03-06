@@ -1,4 +1,5 @@
 function main(){
+    console.log("main");
     ResourceLoader.loadResources().then(result =>{
         DrawableObjectInitializer.initializeResources();
         Blunder.getInstance().renderingLoop();
@@ -6,7 +7,7 @@ function main(){
 }
 
 const TEXTURE_MAP_TYPES = ['diffuse', 'normal', 'specular', 'gloss'];
-const VERTEX_DATA_FIELDS = ['vertices', 'normals', 'faces', 'texturecoords'];
+const JSON_VERTEX_DATA_FIELDS = ['vertices', 'normals', 'faces', 'texturecoords'];
 const VERTEX_DATA_TYPES = ['vertex', 'normal', 'index', 'textureCoordinate'];
 
 class Blunder{
@@ -138,59 +139,7 @@ class RawObjectDataStruct {
 
     //<editor-fold desc="all the loading code">
 
-    async loadInterfaceObjectData(data){
-        this.loadMeshData(data['model']);
-        this.loadTextures(data);
-        this.loadShaders(data);
-        return this;
-    }
 
-    static
-
-    //<editor-fold desc="model data loading">
-
-
-
-    //</editor-fold>
-
-    async loadTextures(data){
-        let tio = {};
-        let textureMapPaths = data.hasOwnProperty('textureMaps') ? data['textureMaps'] : {};
-        for (let textureMapType of textureMapTypeArray)
-            if(textureMapPaths.hasOwnProperty(textureMapType))
-                ResourceLoader.loadTextureMap(textureMapPaths[textureMapType]).then(result => tio[textureMapType+'MapIndex']=result);
-        this.textureIndexObject = tio;
-    }
-
-    async loadShaders(data){
-        //space for multi shader loading
-        this.loadShaderCodeObjects(data.hasOwnProperty('shaders') ? data['shaders'] : {});
-    }
-
-    async loadShaderCodeObjects(shaderPathObject) {
-        if(shaderPathObject.hasOwnProperty("vertex") && shaderPathObject.hasOwnProperty('fragment')){
-            this.loadSpecificShaders(shaderPathObject).then(result => this.shaderCodeObject=result);
-        }
-        else{
-            this.loadGenericShaders().then(result => this.shaderCodeObject=result);
-        }
-    }
-
-    async loadSpecificShaders(shaderPaths){
-        let vertexShader = await Utility.loadTextResourceFromFile(shaderPaths['vertex']);
-        let fragmentShader = await Utility.loadTextResourceFromFile(shaderPaths['fragment']);
-        return {"vertex": vertexShader, "fragment": fragmentShader};
-    }
-
-    async loadGenericShaders() {
-        let genericShaders = {
-            vertex: "./Resource/Shader/genericShader.vert",
-            fragment: "./Resource/Shader/genericShader.frag"
-        };
-        return await this.loadSpecificShaders(genericShaders);
-    }
-
-    //</editor-fold>
 
     getVertexShaderCode(){
         if(this.shaderCodeObject!=null && this.shaderCodeObject.hasOwnProperty("vertex"))
@@ -304,31 +253,30 @@ class ResourceLoader{
 
     static async loadObjectResources(object){
         if(object.hasOwnProperty("data")) {
-            let lio = new RawObjectData(object['name']);
+            let rawData = new RawObjectDataStruct(object['name']);
             let data = object["data"];
             console.info("Loading "+object["name"]+"...");
-            return lio.loadInterfaceObjectData(data);
+            return ResourceLoader.loadInterfaceObjectData(data, rawData);
         }
     }
 
-    static async loadTextureMap(texturePath){
-        console.log(texturePath);
-        let texture = await Utility.loadImage(texturePath);
-        return RawObjectDataStruct.getInstance().insertTextureMap(texture);
+    static async loadInterfaceObjectData(data, rods){
+        rods.dataArrays = ResourceLoader.loadMeshData(data['model']);
+        rods.textures = ResourceLoader.loadTextures(data);
+        rods.shaderCodeObject = ResourceLoader.loadShaders(data);
+        await Promise.all([rods.dataArrays, rods.textures, rods.shaderCodeObject]);
+        return rods;
     }
 
-    static async loadMeshData(modelPath, lio) {
-        Utility.loadJSONResource(modelPath).then(modelData => {
-            if(modelData.hasOwnProperty('meshes')) {
-                // this.extractVertexData(modelData['meshes'][0]).then(result => this.vertexIndex = result);
-                // this.extractNormalData(modelData['meshes'][0]).then(result => this.normalIndex = result);
-                // this.extractIndexData(modelData['meshes'][0]).then(result => this.indexIndex = result);
-                // this.extractTextureCoordinateData(modelData['meshes'][0]).then(result => this.textureCoordinateIndex = result);
-                for(let dataTypeIndex = 0; dataTypeIndex<VERTEX_DATA_FIELDS.length; dataTypeIndex++){
-                    lio.dataArrays[VERTEX_DATA_TYPES[dataTypeIndex]] = ResourceLoader.extractMeshData(modelData['meshes'][0], VERTEX_DATA_FIELDS[dataTypeIndex]);
-                }
-            }
-        });
+    static async loadMeshData(modelPath) {
+        return Utility.loadJSONResource(modelPath).then(modelData => {
+            let vertexDataObject = {};
+            if(modelData.hasOwnProperty('meshes'))
+                for(let dataTypeIndex = 0; dataTypeIndex<JSON_VERTEX_DATA_FIELDS.length; dataTypeIndex++)
+                     ResourceLoader.extractMeshData(modelData['meshes'][0], JSON_VERTEX_DATA_FIELDS[dataTypeIndex]).then(result => {
+                         vertexDataObject[VERTEX_DATA_TYPES[dataTypeIndex]] = result;
+                     });
+            return vertexDataObject;});
     }
 
     static async extractMeshData(modelData, fieldName){
@@ -338,41 +286,41 @@ class ResourceLoader{
                     modelData[fieldName] : -1;
     }
 
-    // async extractVertexData(modelData){
-    //     if(modelData.hasOwnProperty('vertices')) {
-    //         let meshData = modelData['vertices'];
-    //         return meshData;
-    //     }
-    //     else
-    //         return -1;
-    // }
+    static async loadTextures(data){
+        let textures = {};
+        let textureMapPaths = data.hasOwnProperty('textureMaps') ? data['textureMaps'] : {};
+        for (let textureMapType of TEXTURE_MAP_TYPES)
+            if(textureMapPaths.hasOwnProperty(textureMapType))
+                ResourceLoader.loadTextureMap(textureMapPaths[textureMapType]).then(result => tio[textureMapType]=result);
+        return textures;
+    }
 
-    // async extractNormalData(modelData) {
-    //     if(modelData.hasOwnProperty('normals')) {
-    //         let meshData = modelData['normals'];
-    //         return RawObjectDataStruct.getInstance().insertVertexData(meshData);
-    //     }
-    //     else
-    //         return -1;
-    // }
+    static async loadTextureMap(texturePath){
+        console.log(texturePath);
+        return await Utility.loadImage(texturePath);
+    }
 
-    // async extractIndexData(modelData){
-    //     if(modelData.hasOwnProperty('faces')){
-    //         let meshData = [].concat.apply([], modelData['faces']);
-    //         return RawObjectDataStruct.getInstance().insertVertexData(meshData);
-    //     }
-    //     else
-    //         return -1;
-    // }
+    static async loadShaders(data){
+        //space for multi shader loading
+        return await ResourceLoader.loadShaderCodeObject(data.hasOwnProperty('shaders') ? data['shaders'] : {});
+    }
 
-    // async extractTextureCoordinateData(modelData){
-    //     if(modelData.hasOwnProperty('texturecoords')){
-    //         let meshData = modelData['texturecoords'][0];
-    //         return RawObjectDataStruct.getInstance().insertVertexData(meshData);
-    //     }
-    //     else
-    //         return -1;
-    // }
+    static async loadShaderCodeObject(shaderPathObject) {
+        if(shaderPathObject.hasOwnProperty("vertex") && shaderPathObject.hasOwnProperty('fragment')){
+            return await ResourceLoader.loadShaderCode(shaderPathObject);
+        }
+        else{
+            return await ResourceLoader.loadShaderCode();
+        }
+    }
+
+    static async loadShaderCode(shaderPaths){
+        if(!shaderPaths)
+            shaderPaths = {vertex: "./Resource/Shader/genericShader.vert", fragment: "./Resource/Shader/genericShader.frag"};
+        let vertexShader = await Utility.loadTextResourceFromFile(shaderPaths['vertex']);
+        let fragmentShader = await Utility.loadTextResourceFromFile(shaderPaths['fragment']);
+        return {"vertex": vertexShader, "fragment": fragmentShader};
+    }
 }
 
 class Utility{
