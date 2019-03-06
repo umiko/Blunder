@@ -1,0 +1,430 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="ec44fed6-e626-4e79-8f61-b073754744a8" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/Resource/Model/stanford_dragon.json" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resource/Script/Blunder.js" beforeDir="false" afterPath="$PROJECT_DIR$/Resource/Script/Blunder.js" afterDir="false" />
+    </list>
+    <ignored path="$PROJECT_DIR$/.tmp/" />
+    <ignored path="$PROJECT_DIR$/temp/" />
+    <ignored path="$PROJECT_DIR$/tmp/" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileEditorManager">
+    <splitter split-orientation="horizontal" split-proportion="0.6029344">
+      <split-first>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/index.html">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="299">
+                  <caret line="13" column="7" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/Resource/Script/Blunder.js">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="368">
+                  <caret line="121" column="36" selection-start-line="121" selection-start-column="36" selection-end-line="121" selection-end-column="36" />
+                  <folding>
+                    <element signature="n#Blunder#0" />
+                    <element signature="n#ShaderHelper#0" />
+                    <element signature="n#Utility#0" />
+                  </folding>
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/Resource/Shader/shader.frag">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="322">
+                  <caret line="14" column="59" selection-start-line="14" selection-start-column="59" selection-end-line="14" selection-end-column="59" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+          <file pinned="false" current-in-tab="false">
+            <entry file="file://$PROJECT_DIR$/Resource/Shader/shader.vert">
+              <provider selected="true" editor-type-id="text-editor" />
+            </entry>
+          </file>
+        </leaf>
+      </split-first>
+      <split-second>
+        <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
+          <file pinned="false" current-in-tab="true">
+            <entry file="file://$PROJECT_DIR$/Resource/manifest.json">
+              <provider selected="true" editor-type-id="text-editor">
+                <state relative-caret-position="644">
+                  <caret line="28" column="63" selection-start-line="28" selection-start-column="63" selection-end-line="28" selection-end-column="63" />
+                </state>
+              </provider>
+            </entry>
+          </file>
+        </leaf>
+      </split-second>
+    </splitter>
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="HTML File" />
+        <option value="GLSL Shader" />
+      </list>
+    </option>
+  </component>
+  <component name="FindInProjectRecents">
+    <findStrings>
+      <find>await</find>
+    </findStrings>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/Resource/Script/Blunder.JS" />
+        <option value="$PROJECT_DIR$/Resource/resourceManifest.json" />
+        <option value="$PROJECT_DIR$/index.html" />
+        <option value="$PROJECT_DIR$/Resource/Model/floppy.json" />
+        <option value="$PROJECT_DIR$/Resource/Shader/genericShader.vert" />
+        <option value="$PROJECT_DIR$/Resource/Shader/genericShader.frag" />
+        <option value="$PROJECT_DIR$/Resource/manifest.json" />
+        <option value="$PROJECT_DIR$/Resource/Script/Blunder.js" />
+      </list>
+    </option>
+  </component>
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="927" />
+    <option name="y" value="-15" />
+    <option name="width" value="1452" />
+    <option name="height" value="786" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
+  <component name="ProjectView">
+    <navigator proportions="" version="1">
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scope">
+        <subPane subId="Scope 'Project Files'; set:Project Files; class com.intellij.psi.search.scope.ProjectFilesScope">
+          <expand>
+            <path>
+              <item name="Blunder" type="3d21c010:ScopeViewTreeModel$ProjectNode" />
+              <item name="" type="442cc68d:ScopeViewTreeModel$RootNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="ProjectPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="Blunder" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blunder" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Blunder" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blunder" type="462c0819:PsiDirectoryNode" />
+              <item name="Resource" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Blunder" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blunder" type="462c0819:PsiDirectoryNode" />
+              <item name="Resource" type="462c0819:PsiDirectoryNode" />
+              <item name="Model" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Blunder" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blunder" type="462c0819:PsiDirectoryNode" />
+              <item name="Resource" type="462c0819:PsiDirectoryNode" />
+              <item name="Script" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Blunder" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blunder" type="462c0819:PsiDirectoryNode" />
+              <item name="Resource" type="462c0819:PsiDirectoryNode" />
+              <item name="Shader" type="462c0819:PsiDirectoryNode" />
+            </path>
+            <path>
+              <item name="Blunder" type="b2602c69:ProjectViewProjectNode" />
+              <item name="Blunder" type="462c0819:PsiDirectoryNode" />
+              <item name="Resource" type="462c0819:PsiDirectoryNode" />
+              <item name="Texture" type="462c0819:PsiDirectoryNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="DefaultHtmlFileTemplate" value="HTML File" />
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_interpreter_path.stuck_in_default_project" value="undefined stuck path" />
+    <property name="nodejs_npm_path_reset_for_default_project" value="true" />
+    <property name="run.code.analysis.last.selected.profile" value="pProject Default" />
+  </component>
+  <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\Umiko\WebstormProjects\Blunder\Resource\Shader" />
+      <recent name="C:\Users\Umiko\WebstormProjects\Blunder\Resource\Texture" />
+      <recent name="C:\Users\Umiko\WebstormProjects\Blunder\Resource\Model" />
+    </key>
+  </component>
+  <component name="RunDashboard">
+    <option name="ruleStates">
+      <list>
+        <RuleState>
+          <option name="name" value="ConfigurationTypeDashboardGroupingRule" />
+        </RuleState>
+        <RuleState>
+          <option name="name" value="StatusDashboardGroupingRule" />
+        </RuleState>
+      </list>
+    </option>
+  </component>
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="ec44fed6-e626-4e79-8f61-b073754744a8" name="Default Changelist" comment="" />
+      <created>1548637512775</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1548637512775</updated>
+      <workItem from="1548637513965" duration="3231000" />
+      <workItem from="1548673861690" duration="6735000" />
+      <workItem from="1548767210521" duration="17939000" />
+      <workItem from="1549201666627" duration="616000" />
+      <workItem from="1549233299039" duration="6946000" />
+      <workItem from="1549284719972" duration="18786000" />
+      <workItem from="1549365089257" duration="2884000" />
+      <workItem from="1549487686254" duration="146000" />
+      <workItem from="1549723545428" duration="5630000" />
+      <workItem from="1549737035852" duration="14205000" />
+      <workItem from="1549907949224" duration="5602000" />
+      <workItem from="1549930933791" duration="14226000" />
+      <workItem from="1550034026241" duration="832000" />
+      <workItem from="1550595471115" duration="1204000" />
+      <workItem from="1550622260011" duration="1210000" />
+      <workItem from="1550713156672" duration="6324000" />
+      <workItem from="1550784103532" duration="5876000" />
+      <workItem from="1550980824344" duration="3210000" />
+      <workItem from="1551357058149" duration="2017000" />
+      <workItem from="1551495010791" duration="624000" />
+      <workItem from="1551497907577" duration="12000" />
+      <workItem from="1551549586916" duration="654000" />
+      <workItem from="1551597819249" duration="14941000" />
+      <workItem from="1551738182634" duration="599000" />
+    </task>
+    <task id="LOCAL-00001" summary="basic application structure and index page">
+      <created>1548645407703</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1548645407703</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Added a basic utility class and made load resources async">
+      <created>1548730479171</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1548730479171</updated>
+    </task>
+    <task id="LOCAL-00003" summary="added models, textures, shaders and a bit of utility">
+      <created>1548769060219</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1548769060219</updated>
+    </task>
+    <task id="LOCAL-00004" summary="added a floppy model with multiple textures for advanced effects and let blunder load the resource manifest.">
+      <created>1548813834787</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1548813834787</updated>
+    </task>
+    <task id="LOCAL-00005" summary="decided to keep the model data extraction functions seperate, because half of them are special cases. also made them return an invalid index to signify that no data was found">
+      <created>1549250339385</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1549250339385</updated>
+    </task>
+    <task id="LOCAL-00006" summary="loading models and textures to the interface object now works">
+      <created>1549338267349</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1549338267349</updated>
+    </task>
+    <task id="LOCAL-00007" summary="pretty much finished the loading part, now onto initialization">
+      <created>1549946335727</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1549946335727</updated>
+    </task>
+    <task id="LOCAL-00008" summary="added a shader helper for compiling... well... shaders. Still contemplating where to compile them, they are a render resource, but the code is in the interface object, anyways, ill need the context for that, so ill get on that first">
+      <created>1549979477134</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1549979477134</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
+    <servers />
+  </component>
+  <component name="TimeTrackingManager">
+    <option name="totallyTimeSpent" value="134449000" />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-7" y="-7" width="2575" height="1415" extended-state="6" />
+    <layout>
+      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.14100039" />
+      <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
+      <window_info id="Favorites" order="2" side_tool="true" />
+      <window_info anchor="bottom" id="Message" order="0" />
+      <window_info anchor="bottom" id="Find" order="1" weight="0.3298887" />
+      <window_info anchor="bottom" id="Run" order="2" />
+      <window_info anchor="bottom" id="Debug" order="3" weight="0.4" />
+      <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
+      <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
+      <window_info anchor="bottom" id="TODO" order="6" />
+      <window_info anchor="bottom" id="Docker" order="7" show_stripe_button="false" />
+      <window_info anchor="bottom" id="Version Control" order="8" weight="0.3298887" />
+      <window_info anchor="bottom" id="Terminal" order="9" />
+      <window_info anchor="bottom" id="Event Log" order="10" side_tool="true" weight="0.3298887" />
+      <window_info anchor="bottom" id="Inspection Results" order="11" weight="0.3298887" />
+      <window_info anchor="bottom" id="Messages" order="12" weight="0.3298887" />
+      <window_info anchor="right" id="Commander" internal_type="SLIDING" order="0" type="SLIDING" weight="0.4" />
+      <window_info anchor="right" id="Ant Build" order="1" weight="0.25" />
+      <window_info anchor="right" content_ui="combo" id="Hierarchy" order="2" weight="0.25" />
+    </layout>
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="1" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="RECENTLY_FILTERED_USER_GROUPS">
+                <collection />
+              </option>
+              <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+                <collection />
+              </option>
+              <option name="COLUMN_ORDER">
+                <list>
+                  <option value="0" />
+                  <option value="1" />
+                  <option value="2" />
+                  <option value="3" />
+                </list>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="RECENT_FILTERS">
+      <map>
+        <entry key="Branch">
+          <value>
+            <list />
+          </value>
+        </entry>
+        <entry key="User">
+          <value>
+            <list />
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="basic application structure and index page" />
+    <MESSAGE value="Added a basic utility class and made load resources async" />
+    <MESSAGE value="added models, textures, shaders and a bit of utility" />
+    <MESSAGE value="added a floppy model with multiple textures for advanced effects and let blunder load the resource manifest." />
+    <MESSAGE value="decided to keep the model data extraction functions seperate, because half of them are special cases. also made them return an invalid index to signify that no data was found" />
+    <MESSAGE value="loading models and textures to the interface object now works" />
+    <MESSAGE value="pretty much finished the loading part, now onto initialization" />
+    <MESSAGE value="added a shader helper for compiling... well... shaders. Still contemplating where to compile them, they are a render resource, but the code is in the interface object, anyways, ill need the context for that, so ill get on that first" />
+    <option name="LAST_COMMIT_MESSAGE" value="added a shader helper for compiling... well... shaders. Still contemplating where to compile them, they are a render resource, but the code is in the interface object, anyways, ill need the context for that, so ill get on that first" />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/.idea/workspace.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/.idea/vcs.xml">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Resource/Model/stanford_dragon.json" />
+    <entry file="file://$PROJECT_DIR$/Resource/Model/floppy.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state>
+          <caret column="2" selection-start-column="2" selection-end-column="2" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Resource/Shader/genericShader.frag">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Resource/Shader/genericShader.vert">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/index.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="299">
+          <caret line="13" column="7" selection-start-line="13" selection-start-column="7" selection-end-line="13" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Resource/Shader/shader.frag">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="322">
+          <caret line="14" column="59" selection-start-line="14" selection-start-column="59" selection-end-line="14" selection-end-column="59" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Resource/Shader/shader.vert">
+      <provider selected="true" editor-type-id="text-editor" />
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Resource/Script/Blunder.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="368">
+          <caret line="121" column="36" selection-start-line="121" selection-start-column="36" selection-end-line="121" selection-end-column="36" />
+          <folding>
+            <element signature="n#Blunder#0" />
+            <element signature="n#ShaderHelper#0" />
+            <element signature="n#Utility#0" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/Resource/manifest.json">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="644">
+          <caret line="28" column="63" selection-start-line="28" selection-start-column="63" selection-end-line="28" selection-end-column="63" />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>

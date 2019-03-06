@@ -1,12 +1,13 @@
 function main(){
     ResourceLoader.loadResources().then(result =>{
-        Blunder.getInstance().initializeResources();
+        DrawableObjectInitializer.initializeResources();
         Blunder.getInstance().renderingLoop();
     });
 }
 
-const textureMapTypeArray = ['diffuse', 'normal', 'specular', 'gloss'];
-
+const TEXTURE_MAP_TYPES = ['diffuse', 'normal', 'specular', 'gloss'];
+const VERTEX_DATA_FIELDS = ['vertices', 'normals', 'faces', 'texturecoords'];
+const VERTEX_DATA_TYPES = ['vertex', 'normal', 'index', 'textureCoordinate'];
 
 class Blunder{
 
@@ -51,12 +52,12 @@ class Blunder{
 }
 
 
-class RenderResourceManager{
+class BufferObjectStruct{
 
     constructor(){
-        this.textureMaps = [];
-        this.shaders = [];
-        this.vertexData = [];
+        this.textureBuffer = [];
+        this.shaderPrograms = [];
+        this.vertexBuffer = [];
     }
 
     //<editor-fold desc="inserts and getter">
@@ -109,18 +110,24 @@ class RenderResourceManager{
     }
 }
 
-class LoadingInterfaceObject {
+class RawObjectDataStruct {
 
     constructor(name){
         this.objectName = name;
 
-        this.vertexIndex = null;
-        this.normalIndex = null;
-        this.indexIndex = null;
-        this.textureCoordinateIndex = null;
-        this.shaderIndex = null;
+        this.dataArrays = {
+            vertex : null,
+            normal : null,
+            index : null,
+            textureCoordinate : null
+        };
 
-        this.textureIndexObject = null;
+        this.textures = {
+            diffuse : null,
+            normal : null,
+            specular : null,
+            gloss : null
+        };
 
         this.color = [Math.random(),Math.random(),Math.random()];
 
@@ -138,54 +145,11 @@ class LoadingInterfaceObject {
         return this;
     }
 
+    static
+
     //<editor-fold desc="model data loading">
 
-    async loadMeshData(modelPath) {
-        Utility.loadJSONResource(modelPath).then(modelData => {
-            if(modelData.hasOwnProperty('meshes')) {
-                this.extractVertexData(modelData['meshes'][0]).then(result => this.vertexIndex = result);
-                this.extractNormalData(modelData['meshes'][0]).then(result => this.normalIndex = result);
-                this.extractIndexData(modelData['meshes'][0]).then(result => this.indexIndex = result);
-                this.extractTextureCoordinateData(modelData['meshes'][0]).then(result => this.textureCoordinateIndex = result);
-            }
-        });
-    }
 
-    async extractVertexData(modelData){
-        if(modelData.hasOwnProperty('vertices')) {
-            let meshData = modelData['vertices'];
-            return RenderResourceManager.getInstance().insertVertexData(meshData);
-        }
-        else
-            return -1;
-    }
-
-    async extractNormalData(modelData) {
-        if(modelData.hasOwnProperty('normals')) {
-            let meshData = modelData['normals'];
-            return RenderResourceManager.getInstance().insertVertexData(meshData);
-        }
-        else
-            return -1;
-    }
-
-    async extractIndexData(modelData){
-        if(modelData.hasOwnProperty('faces')){
-            let meshData = [].concat.apply([], modelData['faces']);
-            return RenderResourceManager.getInstance().insertVertexData(meshData);
-        }
-        else
-            return -1;
-    }
-
-    async extractTextureCoordinateData(modelData){
-        if(modelData.hasOwnProperty('texturecoords')){
-            let meshData = modelData['texturecoords'][0];
-            return RenderResourceManager.getInstance().insertVertexData(meshData);
-        }
-        else
-            return -1;
-    }
 
     //</editor-fold>
 
@@ -194,14 +158,8 @@ class LoadingInterfaceObject {
         let textureMapPaths = data.hasOwnProperty('textureMaps') ? data['textureMaps'] : {};
         for (let textureMapType of textureMapTypeArray)
             if(textureMapPaths.hasOwnProperty(textureMapType))
-                this.loadTextureMap(textureMapPaths[textureMapType]).then(result => tio[textureMapType+'MapIndex']=result);
+                ResourceLoader.loadTextureMap(textureMapPaths[textureMapType]).then(result => tio[textureMapType+'MapIndex']=result);
         this.textureIndexObject = tio;
-    }
-
-    async loadTextureMap(texturePath){
-        console.log(texturePath);
-        let texture = await Utility.loadImage(texturePath);
-        return RenderResourceManager.getInstance().insertTextureMap(texture);
     }
 
     async loadShaders(data){
@@ -226,30 +184,57 @@ class LoadingInterfaceObject {
 
     async loadGenericShaders() {
         let genericShaders = {
-            "vertex": "./Resource/Shader/genericShader.vert",
-            "fragment": "./Resource/Shader/genericShader.frag"
+            vertex: "./Resource/Shader/genericShader.vert",
+            fragment: "./Resource/Shader/genericShader.frag"
         };
         return await this.loadSpecificShaders(genericShaders);
     }
 
     //</editor-fold>
 
-    initializeResources(){
-        //todo: compile shaders, initialize buffers
-        let shader = ShaderHelper.createShaderProgram(Blunder.getWebGLContext(), this.getVertexShaderCode(), this.getFragmentShaderCode());
-        this.shaderIndex = RenderResourceManager.getInstance().insertShader(shader);
-    }
-
     getVertexShaderCode(){
         if(this.shaderCodeObject!=null && this.shaderCodeObject.hasOwnProperty("vertex"))
             return this.shaderCodeObject.vertex;
-        throw new Error("LoadingInterfaceObject has no vertex shader code");
+        throw new Error("RawObjectData has no vertex shader code");
     }
 
     getFragmentShaderCode(){
         if(this.shaderCodeObject!=null && this.shaderCodeObject.hasOwnProperty("fragment"))
             return this.shaderCodeObject.fragment;
-        throw new Error("LoadingInterfaceObject has no fragment shader code");
+        throw new Error("RawObjectData has no fragment shader code");
+    }
+}
+
+class DrawableObject{
+
+    constructor(){
+        this.BufferIndices = {
+            vertexBufferIndex : null,
+            normalBufferIndex : null,
+            indexBufferIndex : null,
+            textureCoordinateBufferIndex :null
+        };
+        this.shaderIndex = null;
+    }
+}
+
+class DrawableObjectInitializer{
+    static initializeDrawableObject(lio){
+        let drawableObject = new DrawableObject();
+        //todo: compile shaders, initialize buffers
+        drawableObject.shaderIndex = DrawableObjectInitializer.initializeShader(lio);
+        DrawableObjectInitializer.initializeBuffers(lio, drawableObject);
+        return drawableObject;
+    }
+
+    static initializeShader(lio){
+        let shader = ShaderHelper.createShaderProgram(Blunder.getWebGLContext(), lio.getVertexShaderCode(), lio.getFragmentShaderCode());
+        return RawObjectDataStruct.getInstance().insertShader(shader);
+    }
+
+    static initializeBuffers(lio, drawableObject) {
+        initializeVertexDataBuffers();
+        initializeTextureBuffers();
     }
 }
 
@@ -319,12 +304,75 @@ class ResourceLoader{
 
     static async loadObjectResources(object){
         if(object.hasOwnProperty("data")) {
-            let lio = new LoadingInterfaceObject(object['name']);
+            let lio = new RawObjectData(object['name']);
             let data = object["data"];
             console.info("Loading "+object["name"]+"...");
             return lio.loadInterfaceObjectData(data);
         }
     }
+
+    static async loadTextureMap(texturePath){
+        console.log(texturePath);
+        let texture = await Utility.loadImage(texturePath);
+        return RawObjectDataStruct.getInstance().insertTextureMap(texture);
+    }
+
+    static async loadMeshData(modelPath, lio) {
+        Utility.loadJSONResource(modelPath).then(modelData => {
+            if(modelData.hasOwnProperty('meshes')) {
+                // this.extractVertexData(modelData['meshes'][0]).then(result => this.vertexIndex = result);
+                // this.extractNormalData(modelData['meshes'][0]).then(result => this.normalIndex = result);
+                // this.extractIndexData(modelData['meshes'][0]).then(result => this.indexIndex = result);
+                // this.extractTextureCoordinateData(modelData['meshes'][0]).then(result => this.textureCoordinateIndex = result);
+                for(let dataTypeIndex = 0; dataTypeIndex<VERTEX_DATA_FIELDS.length; dataTypeIndex++){
+                    lio.dataArrays[VERTEX_DATA_TYPES[dataTypeIndex]] = ResourceLoader.extractMeshData(modelData['meshes'][0], VERTEX_DATA_FIELDS[dataTypeIndex]);
+                }
+            }
+        });
+    }
+
+    static async extractMeshData(modelData, fieldName){
+        return modelData.hasOwnProperty(fieldName) ?
+            fieldName === 'faces' ? [].concat.apply([], modelData[fieldName]) :
+                fieldName === 'texturecoords' ? modelData[fieldName][0] :
+                    modelData[fieldName] : -1;
+    }
+
+    // async extractVertexData(modelData){
+    //     if(modelData.hasOwnProperty('vertices')) {
+    //         let meshData = modelData['vertices'];
+    //         return meshData;
+    //     }
+    //     else
+    //         return -1;
+    // }
+
+    // async extractNormalData(modelData) {
+    //     if(modelData.hasOwnProperty('normals')) {
+    //         let meshData = modelData['normals'];
+    //         return RawObjectDataStruct.getInstance().insertVertexData(meshData);
+    //     }
+    //     else
+    //         return -1;
+    // }
+
+    // async extractIndexData(modelData){
+    //     if(modelData.hasOwnProperty('faces')){
+    //         let meshData = [].concat.apply([], modelData['faces']);
+    //         return RawObjectDataStruct.getInstance().insertVertexData(meshData);
+    //     }
+    //     else
+    //         return -1;
+    // }
+
+    // async extractTextureCoordinateData(modelData){
+    //     if(modelData.hasOwnProperty('texturecoords')){
+    //         let meshData = modelData['texturecoords'][0];
+    //         return RawObjectDataStruct.getInstance().insertVertexData(meshData);
+    //     }
+    //     else
+    //         return -1;
+    // }
 }
 
 class Utility{
