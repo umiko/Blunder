@@ -52,7 +52,6 @@ class Blunder{
     }
 }
 
-
 class BufferObjectStruct{
 
     constructor(){
@@ -137,10 +136,6 @@ class RawObjectDataStruct {
         this.shaderCodeObject = null;
     }
 
-    //<editor-fold desc="all the loading code">
-
-
-
     getVertexShaderCode(){
         if(this.shaderCodeObject!=null && this.shaderCodeObject.hasOwnProperty("vertex"))
             return this.shaderCodeObject.vertex;
@@ -163,25 +158,25 @@ class DrawableObject{
             indexBufferIndex : null,
             textureCoordinateBufferIndex :null
         };
-        this.shaderIndex = null;
+        this.shaderProgramIndex = null;
     }
 }
 
 class DrawableObjectInitializer{
-    static initializeDrawableObject(lio){
+    static initializeDrawableObject(rods){
         let drawableObject = new DrawableObject();
         //todo: compile shaders, initialize buffers
-        drawableObject.shaderIndex = DrawableObjectInitializer.initializeShader(lio);
-        DrawableObjectInitializer.initializeBuffers(lio, drawableObject);
+        drawableObject.shaderProgramIndex = DrawableObjectInitializer.initializeShader(rods);
+        DrawableObjectInitializer.initializeBuffers(rods, drawableObject);
         return drawableObject;
     }
 
-    static initializeShader(lio){
-        let shader = ShaderHelper.createShaderProgram(Blunder.getWebGLContext(), lio.getVertexShaderCode(), lio.getFragmentShaderCode());
+    static initializeShader(rods){
+        let shader = ShaderHelper.createShaderProgram(Blunder.getWebGLContext(), rods.getVertexShaderCode(), rods.getFragmentShaderCode());
         return RawObjectDataStruct.getInstance().insertShader(shader);
     }
 
-    static initializeBuffers(lio, drawableObject) {
+    static initializeBuffers(rods, drawableObject) {
         initializeVertexDataBuffers();
         initializeTextureBuffers();
     }
@@ -242,13 +237,13 @@ class ResourceLoader{
     }
 
     static async loadManifestContents(manifest){
-        let loadingInterfaceObjectArray = [];
-        for(let property in manifest){
-            if(manifest.hasOwnProperty(property)){
-                ResourceLoader.loadObjectResources(manifest[property]).then(result => loadingInterfaceObjectArray.push(result));
-            }
-        }
-        return loadingInterfaceObjectArray;
+        let rawObjectDataArray = [];
+        for(let property in manifest)
+            if(manifest.hasOwnProperty(property))
+                rawObjectDataArray.push(ResourceLoader.loadObjectResources(manifest[property]));
+        await Promise.all(rawObjectDataArray);
+        console.log(rawObjectDataArray);
+        return rawObjectDataArray;
     }
 
     static async loadObjectResources(object){
@@ -273,9 +268,7 @@ class ResourceLoader{
             let vertexDataObject = {};
             if(modelData.hasOwnProperty('meshes'))
                 for(let dataTypeIndex = 0; dataTypeIndex<JSON_VERTEX_DATA_FIELDS.length; dataTypeIndex++)
-                     ResourceLoader.extractMeshData(modelData['meshes'][0], JSON_VERTEX_DATA_FIELDS[dataTypeIndex]).then(result => {
-                         vertexDataObject[VERTEX_DATA_TYPES[dataTypeIndex]] = result;
-                     });
+                    vertexDataObject[VERTEX_DATA_TYPES[dataTypeIndex]] = ResourceLoader.extractMeshData(modelData['meshes'][0], JSON_VERTEX_DATA_FIELDS[dataTypeIndex]);
             return vertexDataObject;});
     }
 
@@ -306,12 +299,10 @@ class ResourceLoader{
     }
 
     static async loadShaderCodeObject(shaderPathObject) {
-        if(shaderPathObject.hasOwnProperty("vertex") && shaderPathObject.hasOwnProperty('fragment')){
+        if(shaderPathObject.hasOwnProperty("vertex") && shaderPathObject.hasOwnProperty('fragment'))
             return await ResourceLoader.loadShaderCode(shaderPathObject);
-        }
-        else{
+        else
             return await ResourceLoader.loadShaderCode();
-        }
     }
 
     static async loadShaderCode(shaderPaths){
