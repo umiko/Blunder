@@ -177,8 +177,18 @@ class DrawableObjectInitializer{
     }
 
     static initializeBuffers(rods, drawableObject) {
-        initializeVertexDataBuffers();
+        DrawableObjectInitializer.initializeVertexDataBuffers(rods);
         initializeTextureBuffers();
+    }
+
+    static initializeVertexDataBuffers(rods) {
+        let ctxTemp = Blunder.getWebGLContext();
+        for(let perVertexDataType in rods.dataArrays){
+            let vertDataBuffer = ctxTemp.createBuffer();
+            ctxTemp.bindBuffer()
+            //todo: continue buffer initialization
+
+        }
     }
 }
 
@@ -284,7 +294,7 @@ class ResourceLoader{
         let textureMapPaths = data.hasOwnProperty('textureMaps') ? data['textureMaps'] : {};
         for (let textureMapType of TEXTURE_MAP_TYPES)
             if(textureMapPaths.hasOwnProperty(textureMapType))
-                ResourceLoader.loadTextureMap(textureMapPaths[textureMapType]).then(result => tio[textureMapType]=result);
+                ResourceLoader.loadTextureMap(textureMapPaths[textureMapType]).then(result => textures[textureMapType]=result);
         return textures;
     }
 
