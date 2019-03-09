@@ -1,6 +1,8 @@
 function main(){
-    console.log("main");
     ResourceLoader.loadResources().then(result =>{
+        console.log(result[0]["shaderCodeObject"]);
+        console.log(result[1]["shaderCodeObject"]);
+        console.log(result[2]["shaderCodeObject"]);
         DrawableObjectInitializer.initializeResources();
         Blunder.getInstance().renderingLoop();
     });
@@ -250,10 +252,8 @@ class ResourceLoader{
         let rawObjectDataArray = [];
         for(let property in manifest)
             if(manifest.hasOwnProperty(property))
-                rawObjectDataArray.push(ResourceLoader.loadObjectResources(manifest[property]));
-        await Promise.all(rawObjectDataArray);
-        console.log(rawObjectDataArray);
-        return rawObjectDataArray;
+                await ResourceLoader.loadObjectResources(manifest[property]).then(result => {rawObjectDataArray.push(result);});
+        return await Promise.all(rawObjectDataArray).then(()=>{return rawObjectDataArray;});
     }
 
     static async loadObjectResources(object){
@@ -261,15 +261,14 @@ class ResourceLoader{
             let rawData = new RawObjectDataStruct(object['name']);
             let data = object["data"];
             console.info("Loading "+object["name"]+"...");
-            return ResourceLoader.loadInterfaceObjectData(data, rawData);
+            return await ResourceLoader.loadInterfaceObjectData(data, rawData);
         }
     }
 
     static async loadInterfaceObjectData(data, rods){
-        rods.dataArrays = ResourceLoader.loadMeshData(data['model']);
-        rods.textures = ResourceLoader.loadTextures(data);
-        rods.shaderCodeObject = ResourceLoader.loadShaders(data);
-        await Promise.all([rods.dataArrays, rods.textures, rods.shaderCodeObject]);
+        await ResourceLoader.loadMeshData(data['model']).then(result => {rods.dataArrays = result;});
+        await ResourceLoader.loadTextures(data).then(result => {rods.textures = result;});
+        await ResourceLoader.loadShaders(data).then(result => {rods.shaderCodeObject = result;});
         return rods;
     }
 
@@ -299,28 +298,21 @@ class ResourceLoader{
     }
 
     static async loadTextureMap(texturePath){
-        console.log(texturePath);
         return await Utility.loadImage(texturePath);
     }
 
     static async loadShaders(data){
         //space for multi shader loading
-        return await ResourceLoader.loadShaderCodeObject(data.hasOwnProperty('shaders') ? data['shaders'] : {});
-    }
-
-    static async loadShaderCodeObject(shaderPathObject) {
-        if(shaderPathObject.hasOwnProperty("vertex") && shaderPathObject.hasOwnProperty('fragment'))
-            return await ResourceLoader.loadShaderCode(shaderPathObject);
-        else
-            return await ResourceLoader.loadShaderCode();
+        return ResourceLoader.loadShaderCode(data.hasOwnProperty('shaders') ? data['shaders'] : null);
     }
 
     static async loadShaderCode(shaderPaths){
+        let shaderCodeObject = {"vertex": null, "fragment": null};
         if(!shaderPaths)
             shaderPaths = {vertex: "./Resource/Shader/genericShader.vert", fragment: "./Resource/Shader/genericShader.frag"};
-        let vertexShader = await Utility.loadTextResourceFromFile(shaderPaths['vertex']);
-        let fragmentShader = await Utility.loadTextResourceFromFile(shaderPaths['fragment']);
-        return {"vertex": vertexShader, "fragment": fragmentShader};
+        await Utility.loadTextResourceFromFile(shaderPaths['vertex']).then(vertResult => {shaderCodeObject.vertex = vertResult});
+        await Utility.loadTextResourceFromFile(shaderPaths['fragment']).then(fragResult => {shaderCodeObject.fragment = fragResult});
+        return shaderCodeObject;
     }
 }
 
