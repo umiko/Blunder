@@ -1,8 +1,6 @@
 function main(){
     ResourceLoader.loadResources().then(result =>{
-        console.log(result[0]["shaderCodeObject"]);
-        console.log(result[1]["shaderCodeObject"]);
-        console.log(result[2]["shaderCodeObject"]);
+        console.info("Loading finished, moving on to inititalization...");
         Blunder.getInstance().initializeWebGL();
         DrawableObjectInitializer.initializeResources(result);
         Blunder.getInstance().renderingLoop();
@@ -11,7 +9,7 @@ function main(){
 
 const TEXTURE_MAP_TYPES = ['diffuse', 'normal', 'specular', 'gloss'];
 const JSON_VERTEX_DATA_FIELDS = ['vertices', 'normals', 'faces', 'texturecoords'];
-const VERTEX_DATA_TYPES = ['vertex', 'normal', 'index', 'textureCoordinate'];
+const VERTEX_DATA_TYPES = ['vertex', 'normal', 'textureCoordinate', 'index'];
 
 class Blunder{
 
@@ -180,7 +178,6 @@ class DrawableObjectInitializer{
 
     static initializeShader(rods){
         let context = Blunder.getWebGLContext();
-        console.log(context);
         let shader = ShaderHelper.createShaderProgram(context, rods.getVertexShaderCode(), rods.getFragmentShaderCode());
         
         return BufferObjectStruct.insertShader(shader);
@@ -193,6 +190,7 @@ class DrawableObjectInitializer{
 
     static initializeVertexDataBuffers(rods) {
         let ctxTemp = Blunder.getWebGLContext();
+        let VERTEX_DATA_BUFFER_TYPE_MAPPING = Utility.createMapFromArrays(VERTEX_DATA_TYPES,[ctxTemp.ARRAY_BUFFER, ctxTemp.ARRAY_BUFFER, ctxTemp.ARRAY_BUFFER, ctxTemp.ELEMENT_ARRAY_BUFFER]);
         for(let perVertexDataType in rods.dataArrays){
             let vertDataBuffer = ctxTemp.createBuffer();
             ctxTemp.bindBuffer()
@@ -346,4 +344,17 @@ class Utility{
         };
         image.src = url;
     };
+
+    static createMapFromArrays(key, value){
+        if(key.length !== value.length)
+            console.error("Cant create map with different length arrays");
+        let myMap = new Map();
+        for(let i = 0; i<key.length; i++)
+            myMap.set(key[i], value[i]);
+        return myMap;
+    }
+}
+
+class Constants {
+
 }
