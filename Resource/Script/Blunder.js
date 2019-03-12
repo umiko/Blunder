@@ -3,7 +3,8 @@ function main(){
         console.log(result[0]["shaderCodeObject"]);
         console.log(result[1]["shaderCodeObject"]);
         console.log(result[2]["shaderCodeObject"]);
-        DrawableObjectInitializer.initializeResources();
+        Blunder.getInstance().initializeWebGL();
+        DrawableObjectInitializer.initializeResources(result);
         Blunder.getInstance().renderingLoop();
     });
 }
@@ -16,10 +17,6 @@ class Blunder{
 
     constructor(){
         this.canvas = document.getElementById('viewport');
-    }
-
-    initializeResources() {
-        this.initializeWebGL();
     }
 
     renderingLoop() {
@@ -165,17 +162,27 @@ class DrawableObject{
 }
 
 class DrawableObjectInitializer{
+
+    static initializeResources(rodsArray){
+        for(let rods in rodsArray){
+            DrawableObjectInitializer.initializeDrawableObject(rodsArray[rods]);
+        }
+    }
+
     static initializeDrawableObject(rods){
         let drawableObject = new DrawableObject();
         //todo: compile shaders, initialize buffers
         drawableObject.shaderProgramIndex = DrawableObjectInitializer.initializeShader(rods);
         DrawableObjectInitializer.initializeBuffers(rods, drawableObject);
+        console.log(BufferObjectStruct.getInstance().getShader(drawableObject.shaderProgramIndex));
         return drawableObject;
     }
 
     static initializeShader(rods){
-        let shader = ShaderHelper.createShaderProgram(Blunder.getWebGLContext(), rods.getVertexShaderCode(), rods.getFragmentShaderCode());
-        return RawObjectDataStruct.getInstance().insertShader(shader);
+        let context = Blunder.getWebGLContext();
+        let shader = ShaderHelper.createShaderProgram(context, rods.getVertexShaderCode(), rods.getFragmentShaderCode());
+        
+        return BufferObjectStruct.getInstance().insertShader(shader);
     }
 
     static initializeBuffers(rods, drawableObject) {
