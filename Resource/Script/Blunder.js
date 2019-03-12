@@ -61,43 +61,43 @@ class BufferObjectStruct{
 
     //<editor-fold desc="inserts and getter">
 
-    insertTextureMap(texture){
-        if(this.textureMaps.includes(texture)){
-            return this.textureMaps.indexOf(texture);
+    static insertTextureMap(texture){
+        if(this.getInstance().textureMaps.includes(texture)){
+            return this.getInstance().textureMaps.indexOf(texture);
         }
         else{
-            return this.textureMaps.push(texture)-1;
+            return this.getInstance().textureMaps.push(texture)-1;
         }
     }
 
-    getTextureMap(textureIndex){
-        return this.textureMaps[textureIndex];
+    static getTextureMap(textureIndex){
+        return this.getInstance().textureMaps[textureIndex];
     }
 
-    insertShader(shader){
-        if(this.shaders.includes(shader)){
-            return this.shaders.indexOf(shader);
-        }
-        else{
-            return this.shaders.push(shader)-1;
-        }
-    }
-
-    getShader(shaderIndex){
-        return this.shaders[shaderIndex];
-    }
-
-    insertVertexData(dataArray){
-        if(this.vertexData.includes(dataArray)){
-            return this.vertexData.indexOf(dataArray);
+    static insertShader(shader){
+        if(this.getInstance().shaderPrograms.includes(shader)){
+            return this.getInstance().shaderPrograms.indexOf(shader);
         }
         else{
-            return this.vertexData.push(dataArray)-1;
+            return this.getInstance().shaderPrograms.push(shader)-1;
         }
     }
 
-    getVertexData(meshIndex){
-        return this.vertexData[meshIndex];
+    static getShader(shaderIndex){
+        return this.getInstance().shaderPrograms[shaderIndex];
+    }
+
+    static insertVertexData(dataArray){
+        if(this.getInstance().vertexData.includes(dataArray)){
+            return this.getInstance().vertexData.indexOf(dataArray);
+        }
+        else{
+            return this.getInstance().vertexData.push(dataArray)-1;
+        }
+    }
+
+    static getVertexData(meshIndex){
+        return this.getInstance().vertexData[meshIndex];
     }
 
     //</editor-fold>
@@ -180,9 +180,10 @@ class DrawableObjectInitializer{
 
     static initializeShader(rods){
         let context = Blunder.getWebGLContext();
+        console.log(context);
         let shader = ShaderHelper.createShaderProgram(context, rods.getVertexShaderCode(), rods.getFragmentShaderCode());
         
-        return BufferObjectStruct.getInstance().insertShader(shader);
+        return BufferObjectStruct.insertShader(shader);
     }
 
     static initializeBuffers(rods, drawableObject) {
@@ -207,15 +208,15 @@ class ShaderHelper{
         let vertexShader = ShaderHelper.compileShader(context, vertexCode, context.VERTEX_SHADER);
         let fragmentShader = ShaderHelper.compileShader(context, fragmentCode, context.FRAGMENT_SHADER);
         let shaderProgram = ShaderHelper.linkShaderProgram(context, vertexShader, fragmentShader);
-        ShaderHelper.validateShaderProgram(shaderProgram);
+        ShaderHelper.validateShaderProgram(context, shaderProgram);
         return shaderProgram;
     }
 
     static compileShader(context, shaderCode, shaderType){
         let compiledShader = context.createShader(shaderType);
         context.shaderSource(compiledShader, shaderCode);
-        ShaderHelper.compileShader(compiledShader);
-        ShaderHelper.checkShaderCompilationStatus(compiledShader);
+        context.compileShader(compiledShader);
+        ShaderHelper.checkShaderCompilationStatus(context, compiledShader);
         return compiledShader;
     }
 
@@ -224,7 +225,7 @@ class ShaderHelper{
         context.attachShader(shaderProgram, vertexShader);
         context.attachShader(shaderProgram, fragmentShader);
         context.linkProgram(shaderProgram);
-        ShaderHelper.checkProgramLinkStatus(shaderProgram);
+        ShaderHelper.checkProgramLinkStatus(context, shaderProgram);
         return shaderProgram;
     }
 
