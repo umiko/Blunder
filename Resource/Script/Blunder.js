@@ -1,6 +1,6 @@
 function main(){
+    var time = Date.now();
     ResourceLoader.loadResources().then(result =>{
-        console.info("Loading finished, moving on to inititalization...");
         Blunder.getInstance().initializeWebGL();
         DrawableObjectInitializer.initializeResources(result);
         Blunder.getInstance().renderingLoop();
@@ -10,6 +10,10 @@ function main(){
 const TEXTURE_MAP_TYPES = ['diffuse', 'normal', 'specular', 'gloss'];
 const JSON_VERTEX_DATA_FIELDS = ['vertices', 'normals', 'faces', 'texturecoords'];
 const VERTEX_DATA_TYPES = ['vertex', 'normal', 'textureCoordinate', 'index'];
+const VERTEX_DATA_CORRESPONDING_BUFFER_TYPES = function(){
+    let ctxTemp = Blunder.getWebGLContext();
+    return [ctxTemp.ARRAY_BUFFER, ctxTemp.ARRAY_BUFFER, ctxTemp.ARRAY_BUFFER, ctxTemp.ELEMENT_ARRAY_BUFFER];
+}
 
 class Blunder{
 
@@ -60,16 +64,16 @@ class BufferObjectStruct{
     //<editor-fold desc="inserts and getter">
 
     static insertTextureMap(texture){
-        if(this.getInstance().textureMaps.includes(texture)){
-            return this.getInstance().textureMaps.indexOf(texture);
+        if(this.getInstance().textureBuffer.includes(texture)){
+            return this.getInstance().textureBuffer.indexOf(texture);
         }
         else{
-            return this.getInstance().textureMaps.push(texture)-1;
+            return this.getInstance().textureBuffer.push(texture)-1;
         }
     }
 
     static getTextureMap(textureIndex){
-        return this.getInstance().textureMaps[textureIndex];
+        return this.getInstance().textureBuffer[textureIndex];
     }
 
     static insertShader(shader){
@@ -86,16 +90,16 @@ class BufferObjectStruct{
     }
 
     static insertVertexData(dataArray){
-        if(this.getInstance().vertexData.includes(dataArray)){
-            return this.getInstance().vertexData.indexOf(dataArray);
+        if(this.getInstance().vertexBuffer.includes(dataArray)){
+            return this.getInstance().vertexBuffer.indexOf(dataArray);
         }
         else{
-            return this.getInstance().vertexData.push(dataArray)-1;
+            return this.getInstance().vertexBuffer.push(dataArray)-1;
         }
     }
 
     static getVertexData(meshIndex){
-        return this.getInstance().vertexData[meshIndex];
+        return this.getInstance().vertexBuffer[meshIndex];
     }
 
     //</editor-fold>
@@ -149,7 +153,7 @@ class RawObjectDataStruct {
 class DrawableObject{
 
     constructor(){
-        this.BufferIndices = {
+        this.bufferIndices = {
             vertexBufferIndex : null,
             normalBufferIndex : null,
             indexBufferIndex : null,
@@ -172,7 +176,7 @@ class DrawableObjectInitializer{
         //todo: compile shaders, initialize buffers
         drawableObject.shaderProgramIndex = DrawableObjectInitializer.initializeShader(rods);
         DrawableObjectInitializer.initializeBuffers(rods, drawableObject);
-        console.log(BufferObjectStruct.getInstance().getShader(drawableObject.shaderProgramIndex));
+        console.log(drawableObject);
         return drawableObject;
     }
 
@@ -184,65 +188,30 @@ class DrawableObjectInitializer{
     }
 
     static initializeBuffers(rods, drawableObject) {
-        DrawableObjectInitializer.initializeVertexDataBuffers(rods);
-        initializeTextureBuffers();
+        DrawableObjectInitializer.initializeVertexDataBuffers(rods, drawableObject);
+        //initializeTextureBuffers();
     }
 
-    static initializeVertexDataBuffers(rods) {
-        let ctxTemp = Blunder.getWebGLContext();
-        let VERTEX_DATA_BUFFER_TYPE_MAPPING = Utility.createMapFromArrays(VERTEX_DATA_TYPES,[ctxTemp.ARRAY_BUFFER, ctxTemp.ARRAY_BUFFER, ctxTemp.ARRAY_BUFFER, ctxTemp.ELEMENT_ARRAY_BUFFER]);
-        for(let perVertexDataType in rods.dataArrays){
-            let vertDataBuffer = ctxTemp.createBuffer();
-            ctxTemp.bindBuffer()
-            //todo: continue buffer initialization
-
-        }
-    }
-}
-
-class ShaderHelper{
-
-    static createShaderProgram(context, vertexCode, fragmentCode){
-        let vertexShader = ShaderHelper.compileShader(context, vertexCode, context.VERTEX_SHADER);
-        let fragmentShader = ShaderHelper.compileShader(context, fragmentCode, context.FRAGMENT_SHADER);
-        let shaderProgram = ShaderHelper.linkShaderProgram(context, vertexShader, fragmentShader);
-        ShaderHelper.validateShaderProgram(context, shaderProgram);
-        return shaderProgram;
-    }
-
-    static compileShader(context, shaderCode, shaderType){
-        let compiledShader = context.createShader(shaderType);
-        context.shaderSource(compiledShader, shaderCode);
-        context.compileShader(compiledShader);
-        ShaderHelper.checkShaderCompilationStatus(context, compiledShader);
-        return compiledShader;
-    }
-
-    static linkShaderProgram(context, vertexShader, fragmentShader){
-        let shaderProgram = context.createProgram();
-        context.attachShader(shaderProgram, vertexShader);
-        context.attachShader(shaderProgram, fragmentShader);
-        context.linkProgram(shaderProgram);
-        ShaderHelper.checkProgramLinkStatus(context, shaderProgram);
-        return shaderProgram;
-    }
-
-    static checkShaderCompilationStatus(context, compiledShader){
-        if(!context.getShaderParameter(compiledShader, context.COMPILE_STATUS)){
-            throw new Error("Error in Shader Compilation!\n"+ context.getShaderInfoLog(compiledShader));
+    static initializeVertexDataBuffers(rods, drawableObject) {
+        let VERTEX_DATA_BUFFER_TYPE_MAPPING = Utility.createMapFromArrays(VERTEX_DATA_TYPES, VERTEX_DATA_CORRESPONDING_BUFFER_TYPES());
+        for(let perVertexDataType in VERTEX_DATA_TYPES){
+            if(rods.dataArrays.hasOwnProperty(VERTEX_DATA_TYPES[perVertexDataType])){
+                let buffer = DrawableObjectInitializer.initializeBuffer(Blunder.getWebGLContext(), VERTEX_DATA_BUFFER_TYPE_MAPPING.get(VERTEX_DATA_TYPES[perVertexDataType]), rods.dataArrays[VERTEX_DATA_TYPES[perVertexDataType]]);
+                drawableObject.bufferIndices[VERTEX_DATA_TYPES[perVertexDataType]+"BufferIndex"] = buffer === -1 ? -1 : BufferObjectStruct.insertVertexData(buffer);
+            }
         }
     }
 
-    static checkProgramLinkStatus(context, shaderProgram) {
-        if(!context.getProgramParameter(shaderProgram, context.LINK_STATUS)){
-            throw new Error("Error linking program!\n" + context.getProgramInfoLog(shaderProgram));
+    static initializeBuffer(context, bufferTypeEnum, data){
+        console.log(data);
+        if(data !== -1){
+            let buffer = context.createBuffer();
+            context.bindBuffer(bufferTypeEnum, buffer);
+            context.bufferData(bufferTypeEnum, data, context.STATIC_DRAW);
+            context.bindBuffer(bufferTypeEnum, null);
+            return buffer;
         }
-    }
-
-    static validateShaderProgram(context, shaderProgram){
-        if(!context.getProgramParameter(shaderProgram, context.VALIDATE_STATUS)){
-            throw new Error("Error validating program!\n" + context.getProgramInfoLog(shaderProgram));
-        }
+        return -1;
     }
 }
 
@@ -284,14 +253,15 @@ class ResourceLoader{
             if(modelData.hasOwnProperty('meshes'))
                 for(let dataTypeIndex = 0; dataTypeIndex<JSON_VERTEX_DATA_FIELDS.length; dataTypeIndex++)
                     vertexDataObject[VERTEX_DATA_TYPES[dataTypeIndex]] = ResourceLoader.extractMeshData(modelData['meshes'][0], JSON_VERTEX_DATA_FIELDS[dataTypeIndex]);
-            return vertexDataObject;});
+            return vertexDataObject;
+        });
     }
 
-    static async extractMeshData(modelData, fieldName){
+    static extractMeshData(modelData, fieldName){
         return modelData.hasOwnProperty(fieldName) ?
-            fieldName === 'faces' ? [].concat.apply([], modelData[fieldName]) :
-                fieldName === 'texturecoords' ? modelData[fieldName][0] :
-                    modelData[fieldName] : -1;
+            fieldName === 'faces' ? new Uint16Array([].concat.apply([], modelData[fieldName])) :
+                fieldName === 'texturecoords' ? new Float32Array(modelData[fieldName][0]) :
+                new Float32Array(modelData[fieldName]) : new Float32Array(modelData['vertices'].length).fill(0.0);
     }
 
     static async loadTextures(data){
@@ -320,41 +290,4 @@ class ResourceLoader{
         await Utility.loadTextResourceFromFile(shaderPaths['fragment']).then(fragResult => {shaderCodeObject.fragment = fragResult});
         return shaderCodeObject;
     }
-}
-
-class Utility{
-    static loadTextResourceFromFile(url){
-        return fetch(url).then(res => res.text());
-    }
-
-    static loadJSONResource(url){
-        return this.loadTextResourceFromFile(url).then(file => JSON.parse(file));
-    }
-
-    static async loadImage(textureMapPath){
-        return new Promise(resolve => {
-            this.loadImageWithCallback(textureMapPath, resolve);
-        });
-    }
-
-    static loadImageWithCallback(url, callback) {
-        let image = new Image();
-        image.onload = function () {
-            callback(image);
-        };
-        image.src = url;
-    };
-
-    static createMapFromArrays(key, value){
-        if(key.length !== value.length)
-            console.error("Cant create map with different length arrays");
-        let myMap = new Map();
-        for(let i = 0; i<key.length; i++)
-            myMap.set(key[i], value[i]);
-        return myMap;
-    }
-}
-
-class Constants {
-
 }
